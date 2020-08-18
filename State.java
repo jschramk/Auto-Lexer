@@ -1,9 +1,9 @@
 import java.util.*;
 
-public class State<O> {
+public class State<I, O> {
 
   private O output;
-  private Map<Character, State<O>> transitions = new HashMap<>();
+  private Map<I, State<I, O>> transitions = new HashMap<>();
 
   public State() {
   }
@@ -12,20 +12,20 @@ public class State<O> {
     this.output = output;
   }
 
-  State<O> addTransition(char c, State<O> next) {
-    transitions.put(c, next);
+  State<I, O> addTransition(I input, State<I, O> next) {
+    transitions.put(input, next);
     return next;
   }
 
-  boolean hasTransition(char c) {
-    return transitions.containsKey(c);
+  boolean hasTransition(I input) {
+    return transitions.containsKey(input);
   }
 
-  boolean hasSelfLoop(char c) {
-    return transitions.get(c) == this;
+  boolean hasSelfLoop(I input) {
+    return transitions.get(input) == this;
   }
 
-  State<O> nextState(char input) {
+  State<I, O> nextState(I input) {
     return transitions.get(input);
   }
 
@@ -39,11 +39,7 @@ public class State<O> {
     }
   }
 
-  void removeOutput() {
-    this.output = null;
-  }
-
-  Set<Character> transitions() {
+  Set<I> transitions() {
     return transitions.keySet();
   }
 
@@ -51,17 +47,17 @@ public class State<O> {
     return "(State #" + hashCode() + ")";
   }
 
-  public Map<State<O>, Set<Character>> getStateMap() {
+  public Map<State<I, O>, Set<I>> getStateMap() {
 
-    Map<State<O>, Set<Character>> stateMap = new HashMap<>();
+    Map<State<I, O>, Set<I>> stateMap = new HashMap<>();
 
-    for (char c : transitions.keySet()) {
+    for (I input : transitions.keySet()) {
 
-      State<O> state = transitions.get(c);
+      State<I, O> state = transitions.get(input);
 
-      Set<Character> trans = stateMap.computeIfAbsent(state, set -> new HashSet<>());
+      Set<I> trans = stateMap.computeIfAbsent(state, set -> new HashSet<>());
 
-      trans.add(c);
+      trans.add(input);
 
     }
 
@@ -70,24 +66,24 @@ public class State<O> {
   }
 
 
-  public State<O> copy() {
+  public State<I, O> copy() {
     return copy(new HashMap<>());
   }
 
-  private State<O> copy(Map<State<O>, State<O>> matches) {
+  private State<I, O> copy(Map<State<I, O>, State<I, O>> matches) {
 
-    State<O> copy = new State<>(this.output);
+    State<I, O> copy = new State<>(this.output);
 
     matches.put(this, copy);
 
-    for (char c : transitions()) {
+    for (I input : transitions()) {
 
-      State<O> next = nextState(c);
+      State<I, O> next = nextState(input);
 
       if (!matches.containsKey(next)) {
-        copy.addTransition(c, next.copy(matches));
+        copy.addTransition(input, next.copy(matches));
       } else {
-        copy.addTransition(c, matches.get(next));
+        copy.addTransition(input, matches.get(next));
       }
 
     }
@@ -101,7 +97,7 @@ public class State<O> {
     print("    ", new HashSet<>());
   }
 
-  private void print(String indent, Set<State<O>> visited) {
+  private void print(String indent, Set<State<I, O>> visited) {
 
     visited.add(this);
 
@@ -112,14 +108,14 @@ public class State<O> {
     }
     System.out.println();
 
-    Map<State<O>, Set<Character>> stateMap = getStateMap();
-    List<State<O>> states = new ArrayList<>(stateMap.keySet());
+    Map<State<I, O>, Set<I>> stateMap = getStateMap();
+    List<State<I, O>> states = new ArrayList<>(stateMap.keySet());
 
     for (int i = 0; i < states.size(); i++) {
 
       String space = i < states.size() - 1 ? " |  " : "    ";
 
-      State<O> state = states.get(i);
+      State<I, O> state = states.get(i);
 
       System.out.println(indent + stateMap.get(state).toString() + " ↴");
 

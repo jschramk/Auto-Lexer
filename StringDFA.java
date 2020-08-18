@@ -2,15 +2,15 @@ import java.util.List;
 
 public class StringDFA implements DFA<Character, Boolean> {
 
-  private State<Boolean> init;
+  private State<Character, Boolean> init;
 
-  public StringDFA(State<Boolean> init) {
+  public StringDFA(State<Character, Boolean> init) {
     this.init = init;
   }
 
   @Override public Boolean output(List<Character> input) {
 
-    State<Boolean> curr = init;
+    State<Character, Boolean> curr = init;
     for(char c : input){
       if(curr.hasTransition(c)){
         curr = curr.nextState(c);

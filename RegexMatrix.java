@@ -319,7 +319,7 @@ public class RegexMatrix {
     for(int from = 0; from < r1.size; from++){
       if(overlap(r0, from, r1, from)){
 
-        
+
 
       } else {
 
@@ -442,7 +442,7 @@ public class RegexMatrix {
     if (!isDeterministic())
       throw new RuntimeException("Tree is not deterministic");
 
-    List<State<Boolean>> states = new ArrayList<>();
+    List<State<Character, Boolean>> states = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       states.add(new State<>());
     }
