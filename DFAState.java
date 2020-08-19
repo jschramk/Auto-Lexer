@@ -5,41 +5,40 @@ public class DFAState<I, O> {
   private O output;
   private Map<I, DFAState<I, O>> transitions = new HashMap<>();
 
-  public DFAState() {
-  }
-
   public DFAState(O output) {
     this.output = output;
   }
 
-  DFAState<I, O> addTransition(I input, DFAState<I, O> next) {
+  public DFAState() {
+    this(null);
+  }
+
+  public DFAState<I, O> addTransition(I input, DFAState<I, O> next) {
     transitions.put(input, next);
     return next;
   }
 
-  boolean hasTransition(I input) {
-    return transitions.containsKey(input);
-  }
-
+  /*
   boolean hasSelfLoop(I input) {
     return transitions.get(input) == this;
   }
+   */
 
-  DFAState<I, O> nextState(I input) {
+  public DFAState<I, O> getDestination(I input) {
     return transitions.get(input);
   }
 
-  O getOutput() {
+  public O getOutput() {
     return output;
   }
 
-  void setOutput(O output) {
+  public void setOutput(O output) {
     if (output != null) {
       this.output = output;
     }
   }
 
-  Set<I> getTransitions() {
+  public Set<I> getTransitions() {
     return transitions.keySet();
   }
 
@@ -47,7 +46,7 @@ public class DFAState<I, O> {
     return "(DFA State #" + hashCode() + ")" + (output != null ? ": " + output.toString() : "");
   }
 
-  public Map<DFAState<I, O>, Set<I>> getStateMap() {
+  private Map<DFAState<I, O>, Set<I>> getStateMap() {
 
     Map<DFAState<I, O>, Set<I>> stateMap = new HashMap<>();
 
@@ -66,6 +65,7 @@ public class DFAState<I, O> {
   }
 
 
+  /*
   public DFAState<I, O> copy() {
     return copy(new HashMap<>());
   }
@@ -91,9 +91,10 @@ public class DFAState<I, O> {
     return copy;
 
   }
+   */
 
   public void print() {
-    System.out.println("[INIT] ↴");
+    System.out.println("[START] ↴");
     print("    ", new HashSet<>());
   }
 

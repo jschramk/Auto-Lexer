@@ -78,7 +78,7 @@ public class StringClassifier<I, O> {
 
     for(I c : curr.getTransitions()){
 
-      DFAState<I, O> next = curr.nextState(c);
+      DFAState<I, O> next = curr.getDestination(c);
 
       O output = next.getOutput();
 
@@ -132,11 +132,11 @@ public class StringClassifier<I, O> {
 
     for (I thisChar : input) {
 
-      if (!curr.hasTransition(thisChar)) {
+      if (!curr.getTransitions().contains(thisChar)) {
         return null;
       }
 
-      curr = curr.nextState(thisChar);
+      curr = curr.getDestination(thisChar);
 
     }
 
@@ -163,7 +163,7 @@ public class StringClassifier<I, O> {
 
       I thisInput = input.get(i);
 
-      current = current.nextState(thisInput);
+      current = current.getDestination(thisInput);
 
       if(current == null){
         return new Classification<>(result, startIndex, end);
@@ -206,8 +206,8 @@ public class StringClassifier<I, O> {
 
         DFAState<I, O> s = iterator.next();
 
-        if(s.hasTransition(thisInput)){
-          s = s.nextState(thisInput);
+        if(s.getTransitions().contains(thisInput)){
+          s = s.getDestination(thisInput);
           activeDFAStates.set(index, s);
           if(index++ == 0){
             end = i+1;
@@ -218,12 +218,12 @@ public class StringClassifier<I, O> {
 
       }
 
-      if(this.forwardInit.hasTransition(thisInput)){
+      if(this.forwardInit.getTransitions().contains(thisInput)){
         if(activeDFAStates.size() == 0){
           start = i;
           end = i+1;
         }
-        activeDFAStates.add(this.forwardInit.nextState(thisInput));
+        activeDFAStates.add(this.forwardInit.getDestination(thisInput));
       }
 
     }
@@ -257,7 +257,7 @@ public class StringClassifier<I, O> {
 
       I thisInput = input.get(i);
 
-      current = current.nextState(thisInput);
+      current = current.getDestination(thisInput);
 
       if(current == null){
         return new Classification<>(result, start, end);

@@ -2,9 +2,9 @@ import java.util.*;
 
 public class NFAState<I, O> {
 
+  private O output;
   private Map<I, Set<NFAState<I, O>>> transitions = new HashMap<>();
   private Set<NFAState<I, O>> epsilonTransitions = new HashSet<>();
-  private O output;
 
   public NFAState(O output) {
     this.output = output;
@@ -13,6 +13,87 @@ public class NFAState<I, O> {
   public NFAState() {
     this(null);
   }
+
+  public void addTransition(I input, NFAState<I, O> destination) {
+    if (!transitions.containsKey(input)) {
+      transitions.put(input, new HashSet<>());
+    }
+    transitions.get(input).add(destination);
+  }
+
+  public void addEpsilonTransition(NFAState<I, O> destination) {
+    if (destination != this)
+      epsilonTransitions.add(destination);
+  }
+
+  public void setOutput(O output) {
+    this.output = output;
+  }
+
+  public O getOutput() {
+    return output;
+  }
+
+  public Set<NFAState<I, O>> getDestinations(I input) {
+    return transitions.get(input);
+  }
+
+  public Map<I, Set<NFAState<I, O>>> getTransitions() {
+    return transitions;
+  }
+
+  public Set<NFAState<I, O>> getEpsilonTransitions() {
+    return epsilonTransitions;
+  }
+
+  public Set<NFAState<I, O>> getEpsilonStates() {
+    Set<NFAState<I, O>> set = new HashSet<>();
+    set.add(this);
+    for (NFAState<I, O> connected : getEpsilonTransitions()) {
+      set.addAll(connected.getEpsilonStates());
+    }
+    return set;
+  }
+
+  @Override public String toString() {
+    return "(NFA State #" + hashCode() + ")" + (output != null ? ": " + output.toString() : "");
+  }
+
+  public void print() {
+    print("", new HashSet<>());
+  }
+
+  private void print(String currIndent, Set<NFAState<I, O>> visited) {
+
+    System.out.print(currIndent + this);
+    if (visited.contains(this)) {
+      System.out.println(" (Shown above)");
+      return;
+    } else {
+      System.out.println();
+    }
+
+    visited.add(this);
+
+    String indent = currIndent + "    ";
+
+    for (I input : transitions.keySet()) {
+      System.out.println(indent + "[" + input + "] ↴");
+      transitions.get(input).forEach(state -> {
+        state.print(indent, visited);
+      });
+    }
+    if (epsilonTransitions.size() > 0) {
+      System.out.println(indent + "[EPSILON] ↴");
+      epsilonTransitions.forEach(state -> {
+        state.print(indent, visited);
+      });
+    }
+
+
+  }
+
+
 
   public static class NFASegment<I, O> {
 
@@ -83,120 +164,6 @@ public class NFAState<I, O> {
     }
 
   }
-
-
-
-  public void addTransition(I input, NFAState<I, O> destination) {
-    if (!transitions.containsKey(input)) {
-      transitions.put(input, new HashSet<>());
-    }
-    transitions.get(input).add(destination);
-  }
-
-  public void addEpsilonTransition(NFAState<I, O> destination) {
-    if (destination != this)
-      epsilonTransitions.add(destination);
-  }
-
-  public void setOutput(O output) {
-    this.output = output;
-  }
-
-  public O getOutput() {
-    return output;
-  }
-
-  public Set<NFAState<I, O>> getDestinations(I input) {
-    return transitions.get(input);
-  }
-
-  public Map<I, Set<NFAState<I, O>>> getTransitions() {
-    return transitions;
-  }
-
-  public Set<NFAState<I, O>> getEpsilonTransitions() {
-    return epsilonTransitions;
-  }
-
-  @Override public String toString() {
-    return "(NFA State #" + hashCode() + ")" + (output != null ? ": " + output.toString() : "");
-  }
-
-  public void print() {
-    print("", new HashSet<>());
-  }
-
-  private void print(String currIndent, Set<NFAState<I, O>> visited) {
-
-    System.out.print(currIndent + this);
-    if (visited.contains(this)) {
-      System.out.println(" (Shown above)");
-      return;
-    } else {
-      System.out.println();
-    }
-
-    visited.add(this);
-
-    String indent = currIndent + "    ";
-
-    for (I input : transitions.keySet()) {
-      System.out.println(indent + "[" + input + "] ↴");
-      transitions.get(input).forEach(state -> {
-        state.print(indent, visited);
-      });
-    }
-    if (epsilonTransitions.size() > 0) {
-      System.out.println(indent + "[EPSILON] ↴");
-      epsilonTransitions.forEach(state -> {
-        state.print(indent, visited);
-      });
-    }
-
-
-  }
-
-  public static <I, O> DFAState<I, O> toDFAState(Set<NFAState<I, O>> merge) {
-
-    DFAState<I, O> merged = new DFAState<>();
-
-    for (NFAState<I, O> state : merge) {
-
-      for (I input : state.transitions.keySet()) {
-
-        merged.addTransition(input, toDFAState(state.transitions.get(input)));
-
-      }
-
-    }
-
-    return merged;
-
-  }
-
-
-
-  public DFAState<I, O> toDFAState() {
-
-    DFAState<I, O> merged = new DFAState<>();
-
-    for (I input : transitions.keySet()) {
-
-      merged.addTransition(input, toDFAState(transitions.get(input)));
-
-        /*
-        for(NFAState<I, O> add: state.transitions.get(input)){
-          merged.addTransition(input, add);
-        }*/
-
-    }
-
-
-
-    return merged;
-
-  }
-
 
 
 }
