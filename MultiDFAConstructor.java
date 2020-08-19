@@ -18,9 +18,7 @@ public class MultiDFAConstructor<O> {
       segments.add(NFAState.NFASegment.fromRegex(addedRegexps.get(i), addedOutputs.get(i)));
     }
 
-    NFAState.NFASegment<Character, O> root = NFAState.NFASegment.epsilonUnion(
-        segments
-    );
+    NFAState.NFASegment<Character, O> root = NFAState.NFASegment.epsilonUnion(segments);
 
     return new DFA<>(NFAtoDFA.convert(root.getStart()));
 

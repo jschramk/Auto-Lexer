@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class NFAtoDFA<I, O> {
 
@@ -9,12 +6,18 @@ public class NFAtoDFA<I, O> {
   private Map<NFAState<I, O>, Map<I, Set<NFAState<I, O>>>> NFATable = new HashMap<>();
   private Map<NFAState<I, O>, Set<NFAState<I, O>>> NFAEpsilonTable = new HashMap<>();
   private Map<Set<NFAState<I, O>>, DFAState<I, O>> analogTable = new HashMap<>();
+  private List<O> outputRanking;
 
-  private NFAtoDFA() {
+  private NFAtoDFA(List<O> outputRanking) {
+    this.outputRanking = outputRanking;
   }
 
   public static <I, O> DFAState<I, O> convert(NFAState<I, O> root) {
-    NFAtoDFA<I, O> converter = new NFAtoDFA<>();
+    return convert(root, null);
+  }
+
+  public static <I, O> DFAState<I, O> convert(NFAState<I, O> root, List<O> outputRanking) {
+    NFAtoDFA<I, O> converter = new NFAtoDFA<>(outputRanking);
     converter.addNFAByRoot(root);
     return converter.buildDFA();
   }
@@ -92,23 +95,23 @@ public class NFAtoDFA<I, O> {
     }
     currNFAStates = currPlusEpsilon;
 
+    // set output of analog state based on highest importance
     O desiredOutput = null;
     for(NFAState<I, O> state : currNFAStates){
-      //if(desiredOutput == null){
-        if(state.getOutput() != null) desiredOutput = state.getOutput();
-      //} else {
-        /*
-        if(state.getOutput() != null && state.getOutput() != desiredOutput){
-          throw new RuntimeException(
-              String.format(
-                  "Cannot merge states with different non-null outputs: %s, %s",
-                  desiredOutput,
-                  state.getOutput()
-              )
-          );
+      if(desiredOutput == null){
+        if(state.getOutput() != null) {
+          desiredOutput = state.getOutput();
         }
-         */
-      //}
+      } else {
+        if(state.getOutput() != null && outputRanking != null) {
+          int currPos = outputRanking.indexOf(desiredOutput);
+          int newPos = outputRanking.indexOf(state.getOutput());
+
+          if(newPos > currPos){
+            desiredOutput = state.getOutput();
+          }
+        }
+      }
     }
     currDFAState.setOutput(desiredOutput);
 

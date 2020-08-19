@@ -7,31 +7,33 @@ public class Test {
 
     MultiDFAConstructor<String> constructor = new MultiDFAConstructor<>();
 
-    constructor.addRegex(Regex.parse("abc"), "ABC");
     constructor.addRegex(Regex.parse(RegexCollection.INTEGER), "int");
     constructor.addRegex(Regex.parse(RegexCollection.FLOAT), "float");
     constructor.addRegex(Regex.parse(RegexCollection.VARIABLE), "var");
+    constructor.addRegex(Regex.parse("(abc)*"), "ABC");
+    constructor.addRegex(Regex.parse("abcd"), "ABCD");
+    constructor.addRegex(Regex.parse("*"), "multiply");
+    constructor.addRegex(Regex.parse("^|**"), "power");
+    constructor.addRegex(Regex.parse("+"), "add");
+    constructor.addRegex(Regex.parse("-"), "subtract");
+    constructor.addRegex(Regex.parse(" ( )*"), "space");
 
     DFA<Character, String> dfa = constructor.buildDFA();
-    //dfa.print();
 
     StringClassifier<Character, String> classifier = new StringClassifier<>(dfa);
 
 
-    String text = "3.1415 0.5 1 1.5 x1 1x x2 var0 thisIsAwesome abc";
+    String text = "3.141592653**2 .1 pi variableName abcabcabcabc";
 
     List<Character> input = StringSection.toCharacterList(text);
 
-    List<StringClassifier.Classification<String>> all = classifier.segmentWhole(input);
+    List<StringClassifier.Classification<String>> classifications = classifier.segmentWhole(input);
 
-    for(StringClassifier.Classification<String> c : all){
-      System.out.println("[\""+c.sectionOf(text)+"\": "+c.classification()+"]");
+    System.out.println("Input: \""+text+"\"\n");
+
+    for(StringClassifier.Classification<String> c : classifications){
+      System.out.println("\""+c.sectionOf(text)+"\": "+c.classification());
     }
-
-
-    System.out.println("Input: \""+text+"\"");
-    System.out.println("Output: "+dfa.getOutput(input));
-
 
 
   }
