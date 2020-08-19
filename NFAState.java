@@ -90,6 +90,7 @@ public class NFAState<I, O> {
       });
     }
 
+    System.out.println();
 
   }
 
@@ -109,20 +110,78 @@ public class NFAState<I, O> {
       return start;
     }
 
-    public static NFASegment<Character, Boolean> fromString(String s) {
+    public static <O> NFASegment<Character, O> fromString(String s) {
+      return fromString(s, null);
+    }
 
-      NFAState<Character, Boolean> start = new NFAState<>();
+    public static <O> NFASegment<Character, O> fromRegex(Regex regex, O output){
 
-      NFAState<Character, Boolean> curr = start;
-      NFAState<Character, Boolean> end = start;
+      NFASegment<Character, O> r = null;
+
+      switch (regex.type()) {
+
+        case SINGLE: {
+          r = fromCharacter(regex.getCharacter());
+          break;
+        }
+
+        case SEQUENCE: {
+          r = fromRegex(regex.components().get(0), null);
+          for (int i = 1; i < regex.components().size(); i++) {
+            r = r.concat(fromRegex(regex.components().get(i), null));
+          }
+          break;
+        }
+
+        case CHOOSE: {
+
+          List<NFASegment<Character, O>> segments = new ArrayList<>();
+          for (Regex regex1 : regex.components()) {
+            segments.add(fromRegex(regex1, null));
+          }
+
+          r = epsilonUnion(segments);
+
+          break;
+        }
+
+      }
+
+      assert r != null;
+
+      if(regex.isStar()) r = r.addEpsilonClosure();
+
+      r.end.setOutput(output);
+
+      return r;
+
+    }
+
+    public static <O> NFASegment<Character, O> fromCharacter(char c) {
+
+      NFAState<Character, O> start = new NFAState<>();
+      NFAState<Character, O> end = new NFAState<>();
+
+      start.addTransition(c, end);
+
+      return new NFASegment<>(start, end);
+
+    }
+
+    public static <O> NFASegment<Character, O> fromString(String s, O output) {
+
+      NFAState<Character, O> start = new NFAState<>();
+
+      NFAState<Character, O> curr = start;
+      NFAState<Character, O> end = start;
 
       for (int i = 0; i < s.length(); i++) {
 
         char c = s.charAt(i);
 
-        NFAState<Character, Boolean> next = new NFAState<>();
+        NFAState<Character, O> next = new NFAState<>();
         if (i == s.length() - 1) {
-          next.setOutput(true);
+          next.setOutput(output);
           end = next;
         }
 
@@ -143,6 +202,9 @@ public class NFAState<I, O> {
       end.addEpsilonTransition(newEnd);
       newStart.addEpsilonTransition(newEnd);
       end.addEpsilonTransition(start);
+
+      newEnd.setOutput(end.getOutput());
+      end.setOutput(null);
 
       return new NFASegment<>(newStart, newEnd);
 

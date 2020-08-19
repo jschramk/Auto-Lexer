@@ -92,6 +92,26 @@ public class NFAtoDFA<I, O> {
     }
     currNFAStates = currPlusEpsilon;
 
+    O desiredOutput = null;
+    for(NFAState<I, O> state : currNFAStates){
+      //if(desiredOutput == null){
+        if(state.getOutput() != null) desiredOutput = state.getOutput();
+      //} else {
+        /*
+        if(state.getOutput() != null && state.getOutput() != desiredOutput){
+          throw new RuntimeException(
+              String.format(
+                  "Cannot merge states with different non-null outputs: %s, %s",
+                  desiredOutput,
+                  state.getOutput()
+              )
+          );
+        }
+         */
+      //}
+    }
+    currDFAState.setOutput(desiredOutput);
+
     // populate map with sets of successors for each input
     Map<I, Set<NFAState<I, O>>> inputSuccessorMap = new HashMap<>();
     for (NFAState<I, O> state : currNFAStates) {

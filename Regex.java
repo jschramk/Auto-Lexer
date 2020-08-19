@@ -61,8 +61,6 @@ public class Regex {
 
   public static Regex parse(String input) {
 
-    //System.out.println("\"" + input + "\"");
-
     if (input.length() == 0) {
       return null;
     }

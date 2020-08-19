@@ -96,6 +96,7 @@ public class DFAState<I, O> {
   public void print() {
     System.out.println("[START] ↴");
     print("    ", new HashSet<>());
+    System.out.println();
   }
 
   private void print(String indent, Set<DFAState<I, O>> visited) {

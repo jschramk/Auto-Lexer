@@ -2,41 +2,19 @@ import java.util.*;
 
 public class StringClassifier<I, O> {
 
-  public static void main(String[] args) {
+  private DFAState<I, O> forwardInit;
+  private DFAState<I, O> reverseInit = null;
+  private boolean useReverseTree = false;
 
-    StringClassifier<Character, String> sr = new StringClassifier<>();
-
-    sr.putClassification(StringSection.toCharacterList("sinh"), "Hyperbolic Sine");
-    sr.putClassification(StringSection.toCharacterList("sin"), "Sine");
-    sr.putClassification(StringSection.toCharacterList("^"), "Exponent");
-
-    String input = "5x^2 - sinhx";
-
-    List<Character> sequence = StringSection.toCharacterList(input);
-
-
-    List<Classification<String>> all = sr.segmentWhole(sequence);
-
-    System.out.println("input: "+input);
-    System.out.println("classifications: ");
-
-    for(Classification<String> c : all){
-      System.out.println("["+c.sectionOf(input)+": "+c.classification()+"]");
-    }
-
-
-  }
-
-  private DFAState<I, O> forwardInit = new DFAState<>();
-  private DFAState<I, O> reverseInit = new DFAState<>();
-  private boolean useReverseTree;
-
+  /*
   public StringClassifier(boolean useReverseTree) {
     this.useReverseTree = useReverseTree;
   }
+   */
 
-  public StringClassifier(){
-    this(false);
+  public StringClassifier(DFA<I, O> dfa){
+    forwardInit = dfa.getRoot();
+    //this(false);
   }
 
   public static class Classification<O> extends StringSection {
@@ -58,42 +36,7 @@ public class StringClassifier<I, O> {
 
   }
 
-  public void print(){
-    O defaultResult = forwardInit.getOutput();
-    if(defaultResult != null){
-      System.out.println("Default: ("+defaultResult.toString()+")");
-    }
-    printRecur(forwardInit, 0);
-  }
-
-  public void printReverse(){
-    O defaultResult = reverseInit.getOutput();
-    if(defaultResult != null){
-      System.out.println("Default: ("+defaultResult.toString()+")");
-    }
-    printRecur(reverseInit, 0);
-  }
-
-  private void printRecur(DFAState<I, O> curr, int indent){
-
-    for(I c : curr.getTransitions()){
-
-      DFAState<I, O> next = curr.getDestination(c);
-
-      O output = next.getOutput();
-
-      String resultString = output == null ? "" : "("+output.toString()+")";
-
-      String s = "  ".repeat(indent)+c+" "+resultString;
-
-      System.out.println(s);
-
-      printRecur(next, indent+1);
-
-    }
-
-  }
-
+  /*
   public void putClassification(List<I> input, O result){
 
     if(input.size() == 0){
@@ -125,6 +68,7 @@ public class StringClassifier<I, O> {
       reverseInit.setOutput(result);
     }
   }
+   */
 
   public O classifyWhole(List<I> input){
 
@@ -163,11 +107,11 @@ public class StringClassifier<I, O> {
 
       I thisInput = input.get(i);
 
-      current = current.getDestination(thisInput);
-
-      if(current == null){
-        return new Classification<>(result, startIndex, end);
+      if(!current.getTransitions().contains(thisInput)){
+        return new Classification<>(result, startIndex, i);
       }
+
+      current = current.getDestination(thisInput);
 
       if(current.getOutput() != null){
         end = i+1;
@@ -180,15 +124,7 @@ public class StringClassifier<I, O> {
 
   }
 
-  public Classification<O> classifyLast(List<I> input){
-    if(useReverseTree){
-      return classifyLastReverse(input);
-    } else {
-      return classifyLastNoReverse(input);
-    }
-  }
-
-  private Classification<O> classifyLastNoReverse(List<I> input){
+  private Classification<O> classifyLast(List<I> input){
 
     List<DFAState<I, O>> activeDFAStates = new ArrayList<>();
 
@@ -246,62 +182,34 @@ public class StringClassifier<I, O> {
   }
 
 
-  private Classification<O> classifyLastReverse(List<I> input){
-
-    int start = input.size(), end = input.size();
-    O result = reverseInit.getOutput();
-
-    DFAState<I, O> current = reverseInit;
-
-    for (int i = input.size()-1; i >= 0; i--) {
-
-      I thisInput = input.get(i);
-
-      current = current.getDestination(thisInput);
-
-      if(current == null){
-        return new Classification<>(result, start, end);
-      }
-
-      if(current.getOutput() != null){
-        start = i;
-        result = current.getOutput();
-      }
-
-    }
-
-    return new Classification<>(result, start, end);
-
-  }
 
 
-
-  private List<Classification<O>> segmentWhole(List<I> input){
+  public List<Classification<O>> segmentWhole(List<I> input){
 
     List<Classification<O>> classifications = new ArrayList<>();
 
-    int start = 0;
-    int unknownStart = 0;
+    int currPos = 0;
+    int unknownSectionStartPos = 0;
 
-    while (start < input.size()){
+    while (currPos < input.size()){
 
-      Classification<O> first = classifyFirst(input, start);
+      Classification<O> first = classifyFirst(input, currPos);
 
       if(first.classification() == null){
-        start++;
+        currPos++;
       } else {
-        if(start-unknownStart > 0){
-          classifications.add(new Classification<>(null, unknownStart, start));
+        if(currPos-unknownSectionStartPos > 0){
+          classifications.add(new Classification<>(null, unknownSectionStartPos, currPos));
         }
-        start = first.end;
-        unknownStart = start;
+        currPos = first.end;
+        unknownSectionStartPos = currPos;
         classifications.add(first);
       }
 
     }
 
-    if(start-unknownStart > 0){
-      classifications.add(new Classification<>(null, unknownStart, start));
+    if(currPos-unknownSectionStartPos > 0){
+      classifications.add(new Classification<>(null, unknownSectionStartPos, currPos));
     }
 
     return classifications;
