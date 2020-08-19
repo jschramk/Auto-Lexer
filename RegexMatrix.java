@@ -41,14 +41,14 @@ public class RegexMatrix {
       case CHOOSE: {
         r = from(regex.components().get(0));
         for (int i = 1; i < regex.components().size(); i++) {
-          r = r.or(from(regex.components().get(i)));
+          r = r.union(from(regex.components().get(i)));
         }
         break;
       }
 
     }
 
-    return regex.isStar() ? makeLoop(r) : r;
+    return regex.isStar() ? makeClosure(r) : r;
 
   }
 
@@ -118,9 +118,9 @@ public class RegexMatrix {
   }
   */
 
-  public static RegexMatrix makeLoop(RegexMatrix r) {
+  public static RegexMatrix makeClosure(RegexMatrix r) {
 
-    if (r.isLoop())
+    if (r.isClosed())
       return r;
 
     for (int acc : r.acceptingStates) {
@@ -188,7 +188,7 @@ public class RegexMatrix {
 
   }
 
-  public boolean isLoop() {
+  public boolean isClosed() {
     for (int row = 0; row < size; row++) {
       if (matrix[row][0].size() > 0)
         return true;
@@ -210,12 +210,12 @@ public class RegexMatrix {
     return true;
   }
 
-  public static RegexMatrix combine(RegexMatrix r0, RegexMatrix r1) {
+  public static RegexMatrix concatenate(RegexMatrix r0, RegexMatrix r1) {
 
     Set<Integer> totalAccepting = new HashSet<>();
-    if (r0.isLoop())
+    if (r0.isClosed())
       r0 = r0.extendLoop(1);
-    if (r1.isLoop()) {
+    if (r1.isClosed()) {
       r1 = r1.extendLoop(1);
       totalAccepting.addAll(r0.acceptingStates);
     }
@@ -254,11 +254,11 @@ public class RegexMatrix {
 
   }
 
-  public static RegexMatrix or(RegexMatrix r0, RegexMatrix r1) {
+  public static RegexMatrix union(RegexMatrix r0, RegexMatrix r1) {
 
-    if (r0.isLoop())
+    if (r0.isClosed())
       r0 = r0.extendLoop(1);
-    if (r1.isLoop()) {
+    if (r1.isClosed()) {
       r1 = r1.extendLoop(1);
     }
 
@@ -299,9 +299,9 @@ public class RegexMatrix {
 
   public static RegexMatrix or2(RegexMatrix r0, RegexMatrix r1) {
 
-    if (r0.isLoop())
+    if (r0.isClosed())
       r0 = r0.extendLoop(1);
-    if (r1.isLoop()) {
+    if (r1.isClosed()) {
       r1 = r1.extendLoop(1);
     }
 
@@ -356,11 +356,11 @@ public class RegexMatrix {
   }
 
   public RegexMatrix append(RegexMatrix r) {
-    return combine(this, r);
+    return concatenate(this, r);
   }
 
-  public RegexMatrix or(RegexMatrix r) {
-    return or(this, r);
+  public RegexMatrix union(RegexMatrix r) {
+    return union(this, r);
   }
 
   public RegexMatrix extendLoop(int times) {
@@ -369,7 +369,7 @@ public class RegexMatrix {
       throw new IllegalArgumentException("Cannot extend loop a negative number of times");
     }
 
-    if (!isLoop())
+    if (!isClosed())
       throw new RuntimeException("Not star");
 
     RegexMatrix extended = new RegexMatrix((times+1) * size);
@@ -442,23 +442,23 @@ public class RegexMatrix {
     if (!isDeterministic())
       throw new RuntimeException("Tree is not deterministic");
 
-    List<State<Character, Boolean>> states = new ArrayList<>();
+    List<DFAState<Character, Boolean>> DFAStates = new ArrayList<>();
     for (int i = 0; i < size; i++) {
-      states.add(new State<>());
+      DFAStates.add(new DFAState<>());
     }
 
     for (int i = 0; i < size; i++) {
       Map<Character, Integer> out = outgoing(i);
       for (char c : out.keySet()) {
-        states.get(i).addTransition(c, states.get(out.get(c)));
+        DFAStates.get(i).addTransition(c, DFAStates.get(out.get(c)));
       }
     }
 
     for (int i : acceptingStates) {
-      states.get(i).setOutput(true);
+      DFAStates.get(i).setOutput(true);
     }
 
-    return new StringDFA(states.get(0));
+    return new StringDFA(DFAStates.get(0));
 
   }
 

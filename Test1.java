@@ -7,7 +7,7 @@ public class Test1 {
 
     RegexMatrix rm0 = RegexMatrix.from(r0);
     RegexMatrix rm1 = RegexMatrix.from(r1);
-    RegexMatrix combined = RegexMatrix.combine(rm0, rm1);//.purgeUnused();
+    RegexMatrix combined = RegexMatrix.concatenate(rm0, rm1);//.purgeUnused();
 
     System.out.println(rm0);
     System.out.println();

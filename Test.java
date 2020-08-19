@@ -1,13 +1,22 @@
-
+import java.util.Arrays;
 
 public class Test {
 
   public static void main(String[] args) {
 
-    RegexMatrix r0 = RegexMatrix.from(Regex.parse("a"));
-    RegexMatrix r1 = RegexMatrix.from(Regex.parse("b"));
+    NFAState.NFASegment<Character, Boolean> s0 = NFAState.NFASegment.fromString("abc").addEpsilonClosure();
 
-    System.out.println(RegexMatrix.overlap(r0, 0, r1, 0));
+    NFAState.NFASegment<Character, Boolean> s1 = NFAState.NFASegment.epsilonUnion(
+        Arrays.asList(
+            NFAState.NFASegment.fromString("abc"),
+            s0
+        )
+    );
+
+    NFAState.NFASegment<Character, Boolean> s2 = NFAState.NFASegment.fromString("hello");
+
+    System.out.println();
+    NFAtoDFA.convert(s1.getStart()).print();
 
   }
 

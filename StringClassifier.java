@@ -27,8 +27,8 @@ public class StringClassifier<I, O> {
 
   }
 
-  private State<I, O> forwardInit = new State<>();
-  private State<I, O> reverseInit = new State<>();
+  private DFAState<I, O> forwardInit = new DFAState<>();
+  private DFAState<I, O> reverseInit = new DFAState<>();
   private boolean useReverseTree;
 
   public StringClassifier(boolean useReverseTree) {
@@ -59,7 +59,7 @@ public class StringClassifier<I, O> {
   }
 
   public void print(){
-    O defaultResult = forwardInit.output();
+    O defaultResult = forwardInit.getOutput();
     if(defaultResult != null){
       System.out.println("Default: ("+defaultResult.toString()+")");
     }
@@ -67,20 +67,20 @@ public class StringClassifier<I, O> {
   }
 
   public void printReverse(){
-    O defaultResult = reverseInit.output();
+    O defaultResult = reverseInit.getOutput();
     if(defaultResult != null){
       System.out.println("Default: ("+defaultResult.toString()+")");
     }
     printRecur(reverseInit, 0);
   }
 
-  private void printRecur(State<I, O> curr, int indent){
+  private void printRecur(DFAState<I, O> curr, int indent){
 
-    for(I c : curr.transitions()){
+    for(I c : curr.getTransitions()){
 
-      State<I, O> next = curr.nextState(c);
+      DFAState<I, O> next = curr.nextState(c);
 
-      O output = next.output();
+      O output = next.getOutput();
 
       String resultString = output == null ? "" : "("+output.toString()+")";
 
@@ -103,16 +103,16 @@ public class StringClassifier<I, O> {
       );
     }
 
-    State<I, O> curr = forwardInit;
+    DFAState<I, O> curr = forwardInit;
     for(int i = 0; i < input.size(); i++){
-      curr = curr.addTransition(input.get(i), new State<>());
+      curr = curr.addTransition(input.get(i), new DFAState<>());
     }
     curr.setOutput(result);
 
     if(useReverseTree){
       curr = reverseInit;
       for(int i = input.size()-1; i >= 0; i--){
-        curr = curr.addTransition(input.get(i), new State<>());
+        curr = curr.addTransition(input.get(i), new DFAState<>());
       }
       curr.setOutput(result);
     }
@@ -128,7 +128,7 @@ public class StringClassifier<I, O> {
 
   public O classifyWhole(List<I> input){
 
-    State<I, O> curr = forwardInit;
+    DFAState<I, O> curr = forwardInit;
 
     for (I thisChar : input) {
 
@@ -140,7 +140,7 @@ public class StringClassifier<I, O> {
 
     }
 
-    return curr.output();
+    return curr.getOutput();
 
   }
 
@@ -155,9 +155,9 @@ public class StringClassifier<I, O> {
     }
 
     int end = startIndex;
-    O result = forwardInit.output();
+    O result = forwardInit.getOutput();
 
-    State<I, O> current = forwardInit;
+    DFAState<I, O> current = forwardInit;
 
     for (int i = startIndex; i < input.size(); i++) {
 
@@ -169,9 +169,9 @@ public class StringClassifier<I, O> {
         return new Classification<>(result, startIndex, end);
       }
 
-      if(current.output() != null){
+      if(current.getOutput() != null){
         end = i+1;
-        result = current.output();
+        result = current.getOutput();
       }
 
     }
@@ -190,7 +190,7 @@ public class StringClassifier<I, O> {
 
   private Classification<O> classifyLastNoReverse(List<I> input){
 
-    List<State<I, O>> activeStates = new ArrayList<>();
+    List<DFAState<I, O>> activeDFAStates = new ArrayList<>();
 
     int start = input.size(), end = input.size();
 
@@ -198,17 +198,17 @@ public class StringClassifier<I, O> {
 
       I thisInput = input.get(i);
 
-      Iterator<State<I, O>> iterator = activeStates.iterator();
+      Iterator<DFAState<I, O>> iterator = activeDFAStates.iterator();
 
       int index = 0;
 
       while (iterator.hasNext()){
 
-        State<I, O> s = iterator.next();
+        DFAState<I, O> s = iterator.next();
 
         if(s.hasTransition(thisInput)){
           s = s.nextState(thisInput);
-          activeStates.set(index, s);
+          activeDFAStates.set(index, s);
           if(index++ == 0){
             end = i+1;
           }
@@ -219,25 +219,25 @@ public class StringClassifier<I, O> {
       }
 
       if(this.forwardInit.hasTransition(thisInput)){
-        if(activeStates.size() == 0){
+        if(activeDFAStates.size() == 0){
           start = i;
           end = i+1;
         }
-        activeStates.add(this.forwardInit.nextState(thisInput));
+        activeDFAStates.add(this.forwardInit.nextState(thisInput));
       }
 
     }
 
 
-    if(activeStates.size() == 0){
+    if(activeDFAStates.size() == 0){
 
-      return new Classification<>(this.forwardInit.output(), start, end);
+      return new Classification<>(this.forwardInit.getOutput(), start, end);
 
     } else {
 
-      O testResult = activeStates.get(0).output();
+      O testResult = activeDFAStates.get(0).getOutput();
 
-      O result = testResult == null ? this.forwardInit.output() : testResult;
+      O result = testResult == null ? this.forwardInit.getOutput() : testResult;
 
       return new Classification<>(result, start, end);
 
@@ -249,9 +249,9 @@ public class StringClassifier<I, O> {
   private Classification<O> classifyLastReverse(List<I> input){
 
     int start = input.size(), end = input.size();
-    O result = reverseInit.output();
+    O result = reverseInit.getOutput();
 
-    State<I, O> current = reverseInit;
+    DFAState<I, O> current = reverseInit;
 
     for (int i = input.size()-1; i >= 0; i--) {
 
@@ -263,9 +263,9 @@ public class StringClassifier<I, O> {
         return new Classification<>(result, start, end);
       }
 
-      if(current.output() != null){
+      if(current.getOutput() != null){
         start = i;
-        result = current.output();
+        result = current.getOutput();
       }
 
     }
