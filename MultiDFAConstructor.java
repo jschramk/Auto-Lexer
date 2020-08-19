@@ -20,7 +20,7 @@ public class MultiDFAConstructor<O> {
 
     NFAState.NFASegment<Character, O> root = NFAState.NFASegment.epsilonUnion(segments);
 
-    return new DFA<>(NFAtoDFA.convert(root.getStart()));
+    return new DFA<>(NFAtoDFA.convert(root.getStart(), addedOutputs));
 
   }
 

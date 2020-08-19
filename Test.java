@@ -17,13 +17,15 @@ public class Test {
     constructor.addRegex(Regex.parse("+"), "add");
     constructor.addRegex(Regex.parse("-"), "subtract");
     constructor.addRegex(Regex.parse(" ( )*"), "space");
+    constructor.addRegex(Regex.parse("3.14"), "pi");
+    constructor.addRegex(Regex.parse("pi"), "pi");
 
     DFA<Character, String> dfa = constructor.buildDFA();
 
     StringClassifier<Character, String> classifier = new StringClassifier<>(dfa);
 
 
-    String text = "3.141592653**2 .1 pi variableName abcabcabcabc";
+    String text = "3.14^2 .1 pi ";
 
     List<Character> input = StringSection.toCharacterList(text);
 

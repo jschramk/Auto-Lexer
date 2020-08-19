@@ -103,14 +103,18 @@ public class NFAtoDFA<I, O> {
           desiredOutput = state.getOutput();
         }
       } else {
+
         if(state.getOutput() != null && outputRanking != null) {
-          int currPos = outputRanking.indexOf(desiredOutput);
-          int newPos = outputRanking.indexOf(state.getOutput());
+
+          int currPos = outputRanking.lastIndexOf(desiredOutput);
+          int newPos = outputRanking.lastIndexOf(state.getOutput());
 
           if(newPos > currPos){
             desiredOutput = state.getOutput();
           }
+
         }
+
       }
     }
     currDFAState.setOutput(desiredOutput);
