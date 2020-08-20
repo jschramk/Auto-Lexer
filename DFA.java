@@ -1,4 +1,6 @@
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DFA<I, O> {
 
@@ -24,6 +26,21 @@ public class DFA<I, O> {
 
     return curr.getOutput();
 
+  }
+
+  public int computeSize(){
+    return getAllStates(root, new HashSet<>()).size();
+  }
+
+  private Set<DFAState<I, O>> getAllStates(DFAState<I, O> curr, Set<DFAState<I, O>> visited) {
+
+    visited.add(curr);
+
+    for(I in : curr.getTransitions()){
+      visited.add(curr.getDestination(in));
+    }
+
+    return visited;
   }
 
   public DFAState<I, O> getRoot(){

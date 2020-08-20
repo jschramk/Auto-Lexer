@@ -95,7 +95,7 @@ public class NFAtoDFA<I, O> {
     }
     currNFAStates = currPlusEpsilon;
 
-    // set output of analog state based on highest importance
+    // set output of analog state based on highest priority in case of overlap
     O desiredOutput = null;
     for(NFAState<I, O> state : currNFAStates){
       if(desiredOutput == null){
@@ -103,18 +103,13 @@ public class NFAtoDFA<I, O> {
           desiredOutput = state.getOutput();
         }
       } else {
-
         if(state.getOutput() != null && outputRanking != null) {
-
-          int currPos = outputRanking.lastIndexOf(desiredOutput);
-          int newPos = outputRanking.lastIndexOf(state.getOutput());
-
+          int currPos = outputRanking.indexOf(desiredOutput);
+          int newPos = outputRanking.indexOf(state.getOutput());
           if(newPos > currPos){
             desiredOutput = state.getOutput();
           }
-
         }
-
       }
     }
     currDFAState.setOutput(desiredOutput);

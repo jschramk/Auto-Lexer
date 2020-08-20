@@ -2,19 +2,10 @@ import java.util.*;
 
 public class StringClassifier<I, O> {
 
-  private DFAState<I, O> forwardInit;
-  private DFAState<I, O> reverseInit = null;
-  private boolean useReverseTree = false;
-
-  /*
-  public StringClassifier(boolean useReverseTree) {
-    this.useReverseTree = useReverseTree;
-  }
-   */
+  private DFAState<I, O> root;
 
   public StringClassifier(DFA<I, O> dfa){
-    forwardInit = dfa.getRoot();
-    //this(false);
+    root = dfa.getRoot();
   }
 
   public static class Classification<O> extends StringSection {
@@ -36,43 +27,9 @@ public class StringClassifier<I, O> {
 
   }
 
-  /*
-  public void putClassification(List<I> input, O result){
-
-    if(input.size() == 0){
-      throw new IllegalArgumentException(
-          "Recognized inputs must be at least one entry long. "
-              + "To set the default result, use setDefault()"
-      );
-    }
-
-    DFAState<I, O> curr = forwardInit;
-    for(int i = 0; i < input.size(); i++){
-      curr = curr.addTransition(input.get(i), new DFAState<>());
-    }
-    curr.setOutput(result);
-
-    if(useReverseTree){
-      curr = reverseInit;
-      for(int i = input.size()-1; i >= 0; i--){
-        curr = curr.addTransition(input.get(i), new DFAState<>());
-      }
-      curr.setOutput(result);
-    }
-
-  }
-
-  public void setDefault(O result){
-    forwardInit.setOutput(result);
-    if(useReverseTree){
-      reverseInit.setOutput(result);
-    }
-  }
-   */
-
   public O classifyWhole(List<I> input){
 
-    DFAState<I, O> curr = forwardInit;
+    DFAState<I, O> curr = root;
 
     for (I thisChar : input) {
 
@@ -99,9 +56,9 @@ public class StringClassifier<I, O> {
     }
 
     int end = startIndex;
-    O result = forwardInit.getOutput();
+    O result = null;
 
-    DFAState<I, O> current = forwardInit;
+    DFAState<I, O> current = root;
 
     for (int i = startIndex; i < input.size(); i++) {
 
@@ -154,12 +111,12 @@ public class StringClassifier<I, O> {
 
       }
 
-      if(this.forwardInit.getTransitions().contains(thisInput)){
+      if(this.root.getTransitions().contains(thisInput)){
         if(activeDFAStates.size() == 0){
           start = i;
           end = i+1;
         }
-        activeDFAStates.add(this.forwardInit.getDestination(thisInput));
+        activeDFAStates.add(this.root.getDestination(thisInput));
       }
 
     }
@@ -167,13 +124,13 @@ public class StringClassifier<I, O> {
 
     if(activeDFAStates.size() == 0){
 
-      return new Classification<>(this.forwardInit.getOutput(), start, end);
+      return new Classification<>(this.root.getOutput(), start, end);
 
     } else {
 
       O testResult = activeDFAStates.get(0).getOutput();
 
-      O result = testResult == null ? this.forwardInit.getOutput() : testResult;
+      O result = testResult == null ? this.root.getOutput() : testResult;
 
       return new Classification<>(result, start, end);
 

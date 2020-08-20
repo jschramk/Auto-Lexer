@@ -3,27 +3,30 @@ import java.util.List;
 
 public class StringSection {
 
-  public static void main(String[] args) {
-
-    String test = "    hello world   \n";
-    StringSection trim = StringSection.trimOf(test);
-    System.out.println(trim);
-    System.out.println("\""+trim.sectionOf(test)+"\"");
-
-  }
-
-  final int start, end;
+  protected final int start, end;
 
   public StringSection(int start, int end) {
     this.start = start;
     this.end = end;
   }
 
+  public int length() {
+    return end - start;
+  }
+
+  public int getStart() {
+    return start;
+  }
+
+  public int getEnd() {
+    return end;
+  }
+
   public String sectionOf(String input) {
     return input.substring(start, end);
   }
 
-  public String inverseSectionOf(String input){
+  public String inverseSectionOf(String input) {
     return input.substring(0, start) + input.substring(end);
   }
 
@@ -54,7 +57,8 @@ public class StringSection {
 
   }
 
-  public static String replace(String input, List<StringSection> sections, List<String> replacements) {
+  public static String replace(String input, List<StringSection> sections,
+      List<String> replacements) {
 
     if (replacements.size() != sections.size()) {
       throw new IllegalArgumentException("Lists must be the same size");

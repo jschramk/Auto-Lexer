@@ -6,9 +6,10 @@ public class MultiDFAConstructor<O> {
   private List<Regex> addedRegexps = new ArrayList<>();
   private List<O> addedOutputs = new ArrayList<>();
 
-  public void addRegex(Regex regex, O output){
-    addedRegexps.add(regex);
+  public MultiDFAConstructor<O> add(Regex input, O output){
+    addedRegexps.add(input);
     addedOutputs.add(output);
+    return this;
   }
 
   public DFA<Character, O> buildDFA(){
