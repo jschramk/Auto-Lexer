@@ -4,7 +4,7 @@ public class Test {
 
   public static void main(String[] args) {
 
-    MultiDFAConstructor<String> constructor = new MultiDFAConstructor<>();
+    MultiDFAConstructor<Character, String> constructor = new MultiDFAConstructor<>();
 
     constructor
         .add(Regex.parse(RegexCollection.INTEGER), "int")
@@ -21,23 +21,23 @@ public class Test {
         .add(Regex.parse("tan"), "func")
         .add(Regex.parse("exp"), "func")
         .add(Regex.parse("log"), "func")
-        .add(Regex.parse("<"+RegexCollection.INTEGER+">"), "operand");
+        .add(Regex.parse("<O"+RegexCollection.INTEGER+">"), "operand");
 
 
     DFA<Character, String> dfa = constructor.buildDFA();
 
-    StringClassifier<Character, String> classifier = new StringClassifier<>(dfa);
+    InputClassifier<Character, String> classifier = new InputClassifier<>(dfa);
 
-    String text = "log(2, 5)";
+    String text = "log(2, 2^5) * <O1>";
 
     List<Character> input = StringSection.toCharacterList(text);
 
-    List<StringClassifier.Classification<String>> classifications = classifier.segmentWhole(input);
+    List<InputClassifier<Character, String>.Classification> classifications = classifier.segmentWhole(input);
 
     System.out.println("Input: \"" + text + "\"\n");
 
-    for (StringClassifier.Classification<String> c : classifications) {
-      System.out.println("\"" + c.sectionOf(text) + "\": " + c.classification());
+    for (InputClassifier<Character, String>.Classification c : classifications) {
+      System.out.println("\"" + StringSection.listToString(c.sectionOf(StringSection.toCharacterList(text))) + "\": " + c.classification());
     }
 
 

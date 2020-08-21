@@ -110,18 +110,14 @@ public class NFAState<I, O> {
       return start;
     }
 
-    public static <O> NFASegment<Character, O> fromString(String s) {
-      return fromString(s, null);
-    }
+    public static <I, O> NFASegment<I, O> fromRegex(Regex<I> regex, O output){
 
-    public static <O> NFASegment<Character, O> fromRegex(Regex regex, O output){
-
-      NFASegment<Character, O> r = null;
+      NFASegment<I, O> r = null;
 
       switch (regex.type()) {
 
         case SINGLE: {
-          r = fromCharacter(regex.getCharacter());
+          r = fromSingle(regex.getInput());
           break;
         }
 
@@ -135,8 +131,8 @@ public class NFAState<I, O> {
 
         case CHOOSE: {
 
-          List<NFASegment<Character, O>> segments = new ArrayList<>();
-          for (Regex regex1 : regex.components()) {
+          List<NFASegment<I, O>> segments = new ArrayList<>();
+          for (Regex<I> regex1 : regex.components()) {
             segments.add(fromRegex(regex1, null));
           }
 
@@ -157,12 +153,12 @@ public class NFAState<I, O> {
 
     }
 
-    public static <O> NFASegment<Character, O> fromCharacter(char c) {
+    public static <I, O> NFASegment<I, O> fromSingle(I input) {
 
-      NFAState<Character, O> start = new NFAState<>();
-      NFAState<Character, O> end = new NFAState<>();
+      NFAState<I, O> start = new NFAState<>();
+      NFAState<I, O> end = new NFAState<>();
 
-      start.addTransition(c, end);
+      start.addTransition(input, end);
 
       return new NFASegment<>(start, end);
 

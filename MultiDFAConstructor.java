@@ -1,25 +1,25 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiDFAConstructor<O> {
+public class MultiDFAConstructor<I, O> {
 
-  private List<Regex> addedRegexps = new ArrayList<>();
+  private List<Regex<I>> addedRegexps = new ArrayList<>();
   private List<O> addedOutputs = new ArrayList<>();
 
-  public MultiDFAConstructor<O> add(Regex input, O output){
+  public MultiDFAConstructor<I, O> add(Regex<I> input, O output){
     addedRegexps.add(input);
     addedOutputs.add(output);
     return this;
   }
 
-  public DFA<Character, O> buildDFA(){
+  public DFA<I, O> buildDFA(){
 
-    List<NFAState.NFASegment<Character, O>> segments = new ArrayList<>();
+    List<NFAState.NFASegment<I, O>> segments = new ArrayList<>();
     for (int i = 0; i < addedRegexps.size(); i++) {
       segments.add(NFAState.NFASegment.fromRegex(addedRegexps.get(i), addedOutputs.get(i)));
     }
 
-    NFAState.NFASegment<Character, O> root = NFAState.NFASegment.epsilonUnion(segments);
+    NFAState.NFASegment<I, O> root = NFAState.NFASegment.epsilonUnion(segments);
 
     return new DFA<>(NFAtoDFA.convert(root.getStart(), addedOutputs));
 
