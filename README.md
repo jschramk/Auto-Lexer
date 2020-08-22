@@ -6,7 +6,7 @@ Regular Expressions can be parsed from Strings or constructed manually. They are
 ### What is it good for?
 This project is the ultimate tool for Regular Language processing. Due to its generic nature, it can be used on multiple levels of abstraction. For example, it can be used to find recognized words in a string of text, and those words could be fed into a higher layer to find phrases of different kinds, which could then be used to detect more abstract meaning and so on. Please note that this differs from Natural Language processing, which cannot be easily defined by Regular Expressions. This project is best for applications with strict syntax such as mathematics or programming languages.
 ### Just get to the good part.
-Fine. Here's a super simple example of what this project is capable of:
+Fine. Here's a super simple example of what this project is capable of. Here, we are simply labelling substrings with the Regular Expressions they match.
 ~~~
 MultiDFAConstructor<Character, String> constructor = new MultiDFAConstructor<>();
 
