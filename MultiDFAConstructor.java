@@ -6,13 +6,13 @@ public class MultiDFAConstructor<I, O> {
   private List<Regex<I>> addedRegexps = new ArrayList<>();
   private List<O> addedOutputs = new ArrayList<>();
 
-  public MultiDFAConstructor<I, O> add(Regex<I> input, O output){
+  public MultiDFAConstructor<I, O> add(Regex<I> input, O output) {
     addedRegexps.add(input);
     addedOutputs.add(output);
     return this;
   }
 
-  public DFA<I, O> buildDFA(){
+  public DFA<I, O> buildDFA() {
 
     List<NFAState.NFASegment<I, O>> segments = new ArrayList<>();
     for (int i = 0; i < addedRegexps.size(); i++) {

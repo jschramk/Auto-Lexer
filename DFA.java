@@ -10,13 +10,13 @@ public class DFA<I, O> {
     this.root = root;
   }
 
-  public O getOutput(List<I> input){
+  public O getOutput(List<I> input) {
 
     DFAState<I, O> curr = root;
 
-    for(I in : input){
+    for (I in : input) {
 
-      if(curr.getTransitions().contains(in)){
+      if (curr.getTransitions().contains(in)) {
         curr = curr.getDestination(in);
       } else {
         return null;
@@ -28,7 +28,7 @@ public class DFA<I, O> {
 
   }
 
-  public int computeSize(){
+  public int computeSize() {
     return getAllStates(root, new HashSet<>()).size();
   }
 
@@ -36,18 +36,20 @@ public class DFA<I, O> {
 
     visited.add(curr);
 
-    for(I in : curr.getTransitions()){
-      visited.add(curr.getDestination(in));
+    for (I in : curr.getTransitions()) {
+      DFAState<I, O> next = curr.getDestination(in);
+      if(!visited.contains(next))
+      visited.addAll(getAllStates(next, visited));
     }
 
     return visited;
   }
 
-  public DFAState<I, O> getRoot(){
+  public DFAState<I, O> getRoot() {
     return root;
   }
 
-  public void print(){
+  public void print() {
     root.print();
   }
 

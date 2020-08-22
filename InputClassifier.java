@@ -4,7 +4,7 @@ public class InputClassifier<I, O> {
 
   private DFAState<I, O> root;
 
-  public InputClassifier(DFA<I, O> dfa){
+  public InputClassifier(DFA<I, O> dfa) {
     root = dfa.getRoot();
   }
 
@@ -18,16 +18,16 @@ public class InputClassifier<I, O> {
     }
 
     @Override public String toString() {
-      return "["+start+","+end+"], classification: "+result;
+      return "[" + start + "," + end + "]: " + result;
     }
 
-    public O classification(){
+    public O classification() {
       return result;
     }
 
   }
 
-  public O classifyWhole(List<I> input){
+  public O classify(List<I> input) {
 
     DFAState<I, O> curr = root;
 
@@ -45,14 +45,15 @@ public class InputClassifier<I, O> {
 
   }
 
-  public Classification classifyFirst(List<I> input){
-    return classifyFirst(input, 0);
+  public Classification findFirst(List<I> input) {
+    return findFirst(input, 0);
   }
 
-  public Classification classifyFirst(List<I> input, int startIndex){
+  public Classification findFirst(List<I> input, int startIndex) {
 
-    if(startIndex > input.size()){
-      throw new IllegalArgumentException("Start index: "+startIndex+", length: "+input.size());
+    if (startIndex > input.size()) {
+      throw new IllegalArgumentException(
+          "Start index: " + startIndex + ", length: " + input.size());
     }
 
     int end = startIndex;
@@ -64,14 +65,14 @@ public class InputClassifier<I, O> {
 
       I thisInput = input.get(i);
 
-      if(!current.getTransitions().contains(thisInput)){
+      if (!current.getTransitions().contains(thisInput)) {
         return new Classification(result, startIndex, i);
       }
 
       current = current.getDestination(thisInput);
 
-      if(current.getOutput() != null){
-        end = i+1;
+      if (current.getOutput() != null) {
+        end = i + 1;
         result = current.getOutput();
       }
 
@@ -81,7 +82,7 @@ public class InputClassifier<I, O> {
 
   }
 
-  private Classification classifyLast(List<I> input){
+  private Classification findLast(List<I> input) {
 
     List<DFAState<I, O>> activeDFAStates = new ArrayList<>();
 
@@ -95,15 +96,15 @@ public class InputClassifier<I, O> {
 
       int index = 0;
 
-      while (iterator.hasNext()){
+      while (iterator.hasNext()) {
 
         DFAState<I, O> s = iterator.next();
 
-        if(s.getTransitions().contains(thisInput)){
+        if (s.getTransitions().contains(thisInput)) {
           s = s.getDestination(thisInput);
           activeDFAStates.set(index, s);
-          if(index++ == 0){
-            end = i+1;
+          if (index++ == 0) {
+            end = i + 1;
           }
         } else {
           iterator.remove();
@@ -111,26 +112,26 @@ public class InputClassifier<I, O> {
 
       }
 
-      if(this.root.getTransitions().contains(thisInput)){
-        if(activeDFAStates.size() == 0){
+      if (root.getTransitions().contains(thisInput)) {
+        if (activeDFAStates.size() == 0) {
           start = i;
-          end = i+1;
+          end = i + 1;
         }
-        activeDFAStates.add(this.root.getDestination(thisInput));
+        activeDFAStates.add(root.getDestination(thisInput));
       }
 
     }
 
 
-    if(activeDFAStates.size() == 0){
+    if (activeDFAStates.size() == 0) {
 
-      return new Classification(this.root.getOutput(), start, end);
+      return new Classification(root.getOutput(), start, end);
 
     } else {
 
       O testResult = activeDFAStates.get(0).getOutput();
 
-      O result = testResult == null ? this.root.getOutput() : testResult;
+      O result = testResult == null ? root.getOutput() : testResult;
 
       return new Classification(result, start, end);
 
@@ -140,22 +141,21 @@ public class InputClassifier<I, O> {
 
 
 
-
-  public List<Classification> segmentWhole(List<I> input){
+  public List<Classification> findAll(List<I> input) {
 
     List<Classification> classifications = new ArrayList<>();
 
     int currPos = 0;
     int unknownSectionStartPos = 0;
 
-    while (currPos < input.size()){
+    while (currPos < input.size()) {
 
-      Classification first = classifyFirst(input, currPos);
+      Classification first = findFirst(input, currPos);
 
-      if(first.classification() == null){
+      if (first.classification() == null) {
         currPos++;
       } else {
-        if(currPos-unknownSectionStartPos > 0){
+        if (currPos - unknownSectionStartPos > 0) {
           classifications.add(new Classification(null, unknownSectionStartPos, currPos));
         }
         currPos = first.end;
@@ -165,19 +165,13 @@ public class InputClassifier<I, O> {
 
     }
 
-    if(currPos-unknownSectionStartPos > 0){
+    if (currPos - unknownSectionStartPos > 0) {
       classifications.add(new Classification(null, unknownSectionStartPos, currPos));
     }
 
     return classifications;
 
   }
-
-
-
-
-
-
 
 
 

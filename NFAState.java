@@ -110,7 +110,7 @@ public class NFAState<I, O> {
       return start;
     }
 
-    public static <I, O> NFASegment<I, O> fromRegex(Regex<I> regex, O output){
+    public static <I, O> NFASegment<I, O> fromRegex(Regex<I> regex, O output) {
 
       NFASegment<I, O> r = null;
 
@@ -145,7 +145,8 @@ public class NFAState<I, O> {
 
       assert r != null;
 
-      if(regex.isStar()) r = r.addEpsilonClosure();
+      if (regex.isStar())
+        r = r.addEpsilonClosure();
 
       r.end.setOutput(output);
 

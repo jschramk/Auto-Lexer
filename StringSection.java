@@ -7,9 +7,9 @@ public class StringSection extends InputSection<Character> {
     super(start, end);
   }
 
-  public static String listToString(List<Character> characters){
+  public static String listToString(List<Character> characters) {
     StringBuilder s = new StringBuilder();
-    for(char c : characters){
+    for (char c : characters) {
       s.append(c);
     }
     return s.toString();
