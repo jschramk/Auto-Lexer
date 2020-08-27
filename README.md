@@ -10,27 +10,26 @@ Fine. Here's a super simple example of what this project is capable of. Here, we
 ~~~
 MultiDFAConstructor<Character, String> constructor = new MultiDFAConstructor<>();
 
-constructor
-    .add(Regex.parse("(abc)*"), "(abc)*")
-    .add(Regex.parse("abcabc"), "abcabc")
+constructor.add(Regex.parse("(abc)*"), "(abc)*").add(Regex.parse("abcabc"), "abcabc")
     .add(Regex.parse("(ab|cd)*"), "(ab|cd)*");
-    
+
 DFA<Character, String> dfa = constructor.buildDFA();
 
 InputClassifier<Character, String> classifier = new InputClassifier<>(dfa);
 
 String text = "abc abcabc ababcdabcdab";
 
-List<Character> input = StringSection.toCharacterList(text);
-List<InputClassifier<Character, String>.Classification> classifications =
+List<Character> input = InputSection.characterListOf(text);
+List<InputSection<Character, String>> classifications =
     classifier.findAll(input);
 
 System.out.println("Input: \"" + text + "\"\n");
-for (InputClassifier<Character, String>.Classification c : classifications) {
-  if(c.classification() == null) continue;
+for (InputSection<Character, String> c : classifications) {
+  if (c.getLabel() == null)
+    continue;
   System.out.println(String.format("\"%s\": %s",
-      StringSection.listToString(c.sectionOf(StringSection.toCharacterList(text))),
-      c.classification()));
+      InputSection.stringOf(c.sectionOf(InputSection.characterListOf(text))),
+      c.getLabel()));
 }
 ~~~
 **Output:**
