@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.List;
 
 public class Example {
@@ -15,17 +17,17 @@ public class Example {
 
     String text = "abc abcabc ababcdabcdab";
 
-    List<Character> input = StringSection.toCharacterList(text);
-    List<InputClassifier<Character, String>.Classification> classifications =
+    List<Character> input = InputSection.characterListOf(text);
+    List<InputSection<Character, String>> classifications =
         classifier.findAll(input);
 
     System.out.println("Input: \"" + text + "\"\n");
-    for (InputClassifier<Character, String>.Classification c : classifications) {
-      if (c.classification() == null)
+    for (InputSection<Character, String> c : classifications) {
+      if (c.getLabel() == null)
         continue;
       System.out.println(String.format("\"%s\": %s",
-          StringSection.listToString(c.sectionOf(StringSection.toCharacterList(text))),
-          c.classification()));
+          InputSection.stringOf(c.sectionOf(InputSection.characterListOf(text))),
+          c.getLabel()));
     }
 
   }

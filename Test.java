@@ -1,4 +1,6 @@
+package dfa.utils;
 
+import java.util.List;
 
 public class Test {
 
@@ -6,14 +8,14 @@ public class Test {
 
     MultiDFAConstructor<Character, String> c = new MultiDFAConstructor<>();
 
-    c.add(Regex.parse(RegexCollection.INTEGER), "int")
-        .add(Regex.parse(RegexCollection.VARIABLE), "var")
-        .add(Regex.parse(RegexCollection.FLOAT), "float")
-        .add(Regex.parse("<"+RegexCollection.INTEGER+">"), "operand");
+    c.add(Regex.parse("<0>^<0>"), "0");
 
-    DFA<Character, String> dfa = c.buildDFA();
+    InputClassifier<Character, String> ic = new InputClassifier<>(c.buildDFA());
 
-    System.out.println(dfa.computeSize());
+    List<Character> input = InputSection.characterListOf("<0>^<0>^<0>");
+
+    System.out.println(ic.findLast(input));
+
 
 
   }

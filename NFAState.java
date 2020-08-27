@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.*;
 
 public class NFAState<I, O> {

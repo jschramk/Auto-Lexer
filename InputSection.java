@@ -1,13 +1,17 @@
+package dfa.utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputSection<I> {
+public class InputSection<I, O> {
 
+  private final O label;
   protected final int start, end;
 
-  public InputSection(int start, int end) {
+  public InputSection(int start, int end, O label) {
     this.start = start;
     this.end = end;
+    this.label = label;
   }
 
   public int length() {
@@ -37,7 +41,7 @@ public class InputSection<I> {
     return section;
   }
 
-  public static <I> List<I> replace(List<I> input, List<InputSection<I>> sections,
+  public static <I, O> List<I> replace(List<I> input, List<InputSection<I, O>> sections,
       List<List<I>> replacements) {
 
     if (replacements.size() != sections.size()) {
@@ -68,15 +72,49 @@ public class InputSection<I> {
 
   }
 
-  public static <I> List<I> replace(List<I> input, InputSection<I> section, List<I> replacement) {
+
+  public static <I> List<I> replace(List<I> input, int start, int end, List<I> replacement) {
     List<I> result = new ArrayList<>();
-    result.addAll(input.subList(0, section.start));
+    result.addAll(input.subList(0, start));
     result.addAll(replacement);
-    result.addAll(input.subList(section.end, input.size()));
+    result.addAll(input.subList(end, input.size()));
     return result;
   }
 
-  @Override public String toString() {
-    return "[" + start + "," + end + "]";
+  public static <I, O> List<I> replace(List<I> input, InputSection<I, O> section, List<I> replacement) {
+    return replace(input, section.start, section.end, replacement);
   }
+
+  @Override public String toString() {
+    return "[" + start + "," + end + "]: " + label;
+  }
+
+  public O getLabel() {
+    return label;
+  }
+
+  public static String stringOf(List<Character> characters) {
+    StringBuilder s = new StringBuilder();
+    for (char c : characters) {
+      s.append(c);
+    }
+    return s.toString();
+  }
+
+  public static List<Character> characterListOf(String s) {
+    List<Character> characters = new ArrayList<>();
+    for (char c : s.toCharArray()) {
+      characters.add(c);
+    }
+    return characters;
+  }
+
+  public static <I, O> List<O> labelListOf(List<InputSection<I, O>> list) {
+    List<O> result = new ArrayList<>();
+    for(InputSection<I, O> section : list) {
+      result.add(section.label);
+    }
+    return result;
+  }
+
 }

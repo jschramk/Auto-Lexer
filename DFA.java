@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +54,8 @@ public class DFA<I, O> {
   public void print() {
     root.print();
   }
+
+  public String test = "";
 
 
 }

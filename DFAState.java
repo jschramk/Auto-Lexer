@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.*;
 
 public class DFAState<I, O> {
@@ -66,19 +68,19 @@ public class DFAState<I, O> {
 
 
   /*
-  public DFAState<I, O> copy() {
+  public dfa.utils.DFAState<I, O> copy() {
     return copy(new HashMap<>());
   }
 
-  private DFAState<I, O> copy(Map<DFAState<I, O>, DFAState<I, O>> matches) {
+  private dfa.utils.DFAState<I, O> copy(Map<dfa.utils.DFAState<I, O>, dfa.utils.DFAState<I, O>> matches) {
 
-    DFAState<I, O> copy = new DFAState<>(this.output);
+    dfa.utils.DFAState<I, O> copy = new dfa.utils.DFAState<>(this.output);
 
     matches.put(this, copy);
 
     for (I input : getTransitions()) {
 
-      DFAState<I, O> next = nextState(input);
+      dfa.utils.DFAState<I, O> next = nextState(input);
 
       if (!matches.containsKey(next)) {
         copy.addTransition(input, next.copy(matches));

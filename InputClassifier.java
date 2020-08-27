@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.*;
 
 public class InputClassifier<I, O> {
@@ -6,25 +8,6 @@ public class InputClassifier<I, O> {
 
   public InputClassifier(DFA<I, O> dfa) {
     root = dfa.getRoot();
-  }
-
-  public class Classification extends InputSection<I> {
-
-    private final O result;
-
-    public Classification(O result, int start, int end) {
-      super(start, end);
-      this.result = result;
-    }
-
-    @Override public String toString() {
-      return "[" + start + "," + end + "]: " + result;
-    }
-
-    public O classification() {
-      return result;
-    }
-
   }
 
   public O classify(List<I> input) {
@@ -45,11 +28,11 @@ public class InputClassifier<I, O> {
 
   }
 
-  public Classification findFirst(List<I> input) {
+  public InputSection<I, O> findFirst(List<I> input) {
     return findFirst(input, 0);
   }
 
-  public Classification findFirst(List<I> input, int startIndex) {
+  public InputSection<I, O> findFirst(List<I> input, int startIndex) {
 
     if (startIndex > input.size()) {
       throw new IllegalArgumentException(
@@ -66,7 +49,7 @@ public class InputClassifier<I, O> {
       I thisInput = input.get(i);
 
       if (!current.getTransitions().contains(thisInput)) {
-        return new Classification(result, startIndex, i);
+        return new InputSection<>(startIndex, i, result);
       }
 
       current = current.getDestination(thisInput);
@@ -78,98 +61,65 @@ public class InputClassifier<I, O> {
 
     }
 
-    return new Classification(result, startIndex, end);
+    return new InputSection<>(startIndex, end, result);
 
   }
 
-  private Classification findLast(List<I> input) {
+  public InputSection<I, O> findLast(List<I> input) {
 
-    List<DFAState<I, O>> activeDFAStates = new ArrayList<>();
+    Queue<InputSection<I, O>> labels = new LinkedList<>();
 
-    int start = input.size(), end = input.size();
+    int currPos = 0;
 
-    for (int i = 0; i < input.size(); i++) {
+    while (currPos < input.size()) {
 
-      I thisInput = input.get(i);
+      InputSection<I, O> first = findFirst(input, currPos);
 
-      Iterator<DFAState<I, O>> iterator = activeDFAStates.iterator();
-
-      int index = 0;
-
-      while (iterator.hasNext()) {
-
-        DFAState<I, O> s = iterator.next();
-
-        if (s.getTransitions().contains(thisInput)) {
-          s = s.getDestination(thisInput);
-          activeDFAStates.set(index, s);
-          if (index++ == 0) {
-            end = i + 1;
-          }
-        } else {
-          iterator.remove();
+      currPos++;
+      if(first.getLabel() != null) {
+        if (!labels.isEmpty()){
+          labels.remove();
         }
-
-      }
-
-      if (root.getTransitions().contains(thisInput)) {
-        if (activeDFAStates.size() == 0) {
-          start = i;
-          end = i + 1;
-        }
-        activeDFAStates.add(root.getDestination(thisInput));
+        labels.add(first);
       }
 
     }
 
-
-    if (activeDFAStates.size() == 0) {
-
-      return new Classification(root.getOutput(), start, end);
-
-    } else {
-
-      O testResult = activeDFAStates.get(0).getOutput();
-
-      O result = testResult == null ? root.getOutput() : testResult;
-
-      return new Classification(result, start, end);
-
-    }
+    return labels.peek();
 
   }
 
 
 
-  public List<Classification> findAll(List<I> input) {
+  public List<InputSection<I, O>> findAll(List<I> input) {
 
-    List<Classification> classifications = new ArrayList<>();
+    List<InputSection<I, O>> labels = new ArrayList<>();
 
     int currPos = 0;
     int unknownSectionStartPos = 0;
 
     while (currPos < input.size()) {
 
-      Classification first = findFirst(input, currPos);
+      InputSection<I, O> first = findFirst(input, currPos);
 
-      if (first.classification() == null) {
+      if (first.getLabel() == null) {
         currPos++;
       } else {
         if (currPos - unknownSectionStartPos > 0) {
-          classifications.add(new Classification(null, unknownSectionStartPos, currPos));
+          labels.add(new InputSection<>(unknownSectionStartPos, currPos, null));
         }
         currPos = first.end;
         unknownSectionStartPos = currPos;
-        classifications.add(first);
+        labels.add(first);
       }
 
     }
 
     if (currPos - unknownSectionStartPos > 0) {
-      classifications.add(new Classification(null, unknownSectionStartPos, currPos));
+      labels.add(new InputSection<>(unknownSectionStartPos, currPos, null));
     }
 
-    return classifications;
+    return labels;
 
   }
 

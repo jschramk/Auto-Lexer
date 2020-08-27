@@ -1,3 +1,5 @@
+package dfa.utils;
+
 import java.util.*;
 
 public class NFAtoDFA<I, O> {
@@ -81,7 +83,7 @@ public class NFAtoDFA<I, O> {
       Set<NFAState<I, O>> currNFAStates
   ) {
 
-    // stop recursion if current DFA state was already built
+    // stop recursion if current dfa.utils.DFA state was already built
     if (completedDFAStates.contains(currDFAState)) {
       return currDFAState;
     } else {
@@ -125,8 +127,8 @@ public class NFAtoDFA<I, O> {
       }
     }
 
-    // construct subtree for each analogous DFA state and
-    // connect it as the DFA state successor for each input
+    // construct subtree for each analogous dfa.utils.DFA state and
+    // connect it as the dfa.utils.DFA state successor for each input
     for (I input : inputSuccessorMap.keySet()) {
       Set<NFAState<I, O>> successors = inputSuccessorMap.get(input);
       if (getAnalogState(successors) == null) {
