@@ -28,11 +28,7 @@ public class InputClassifier<I, O> {
 
   }
 
-  public InputSection<I, O> findFirst(List<I> input) {
-    return findFirst(input, 0);
-  }
-
-  public InputSection<I, O> findFirst(List<I> input, int startIndex) {
+  public InputSection<I, O> findNext(List<I> input, int startIndex) {
 
     if (startIndex > input.size()) {
       throw new IllegalArgumentException(
@@ -49,47 +45,56 @@ public class InputClassifier<I, O> {
       I thisInput = input.get(i);
 
       if (!current.getTransitions().contains(thisInput)) {
-        return new InputSection<>(startIndex, i, result);
+        break;
       }
 
       current = current.getDestination(thisInput);
 
       if (current.getOutput() != null) {
-        end = i + 1;
+        end = i+1;
         result = current.getOutput();
       }
 
     }
 
-    return new InputSection<>(startIndex, end, result);
+    return result == null ? null : new InputSection<>(startIndex, end, result);
 
+  }
+
+  public InputSection<I, O> findFirst(List<I> input) {
+    for (int i = 0; i < input.size(); i++) {
+      InputSection<I, O> first = findNext(input, i);
+      if (first != null) {
+        return first;
+      }
+    }
+    return null;
   }
 
   public InputSection<I, O> findLast(List<I> input) {
 
-    Queue<InputSection<I, O>> labels = new LinkedList<>();
+    Queue<InputSection<I, O>> sections = new LinkedList<>();
 
     int currPos = 0;
 
     while (currPos < input.size()) {
 
-      InputSection<I, O> first = findFirst(input, currPos);
+      InputSection<I, O> first = findNext(input, currPos);
+
+      if (first != null && first.getLabel() != null) {
+        if (!sections.isEmpty()) {
+          sections.remove();
+        }
+        sections.add(first);
+      }
 
       currPos++;
-      if(first.getLabel() != null) {
-        if (!labels.isEmpty()){
-          labels.remove();
-        }
-        labels.add(first);
-      }
 
     }
 
-    return labels.peek();
+    return sections.peek();
 
   }
-
-
 
   public List<InputSection<I, O>> findAll(List<I> input) {
 
@@ -100,9 +105,9 @@ public class InputClassifier<I, O> {
 
     while (currPos < input.size()) {
 
-      InputSection<I, O> first = findFirst(input, currPos);
+      InputSection<I, O> first = findNext(input, currPos);
 
-      if (first.getLabel() == null) {
+      if (first == null || first.getLabel() == null) {
         currPos++;
       } else {
         if (currPos - unknownSectionStartPos > 0) {

@@ -15,16 +15,9 @@ public class DFAState<I, O> {
     this(null);
   }
 
-  public DFAState<I, O> addTransition(I input, DFAState<I, O> next) {
+  public void addTransition(I input, DFAState<I, O> next) {
     transitions.put(input, next);
-    return next;
   }
-
-  /*
-  boolean hasSelfLoop(I input) {
-    return transitions.get(input) == this;
-  }
-   */
 
   public DFAState<I, O> getDestination(I input) {
     return transitions.get(input);
@@ -65,35 +58,6 @@ public class DFAState<I, O> {
     return stateMap;
 
   }
-
-
-  /*
-  public dfa.utils.DFAState<I, O> copy() {
-    return copy(new HashMap<>());
-  }
-
-  private dfa.utils.DFAState<I, O> copy(Map<dfa.utils.DFAState<I, O>, dfa.utils.DFAState<I, O>> matches) {
-
-    dfa.utils.DFAState<I, O> copy = new dfa.utils.DFAState<>(this.output);
-
-    matches.put(this, copy);
-
-    for (I input : getTransitions()) {
-
-      dfa.utils.DFAState<I, O> next = nextState(input);
-
-      if (!matches.containsKey(next)) {
-        copy.addTransition(input, next.copy(matches));
-      } else {
-        copy.addTransition(input, matches.get(next));
-      }
-
-    }
-
-    return copy;
-
-  }
-   */
 
   public void print() {
     System.out.println("[START] ↴");

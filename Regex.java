@@ -116,7 +116,7 @@ public class Regex<I> {
 
   }
 
-  public static  Regex<Character> parse(String input) {
+  public static Regex<Character> parse(String input) {
 
     if (input.length() == 0) {
       return null;
