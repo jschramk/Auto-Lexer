@@ -6,14 +6,14 @@ public class Example {
 
   public static void main(String[] args) {
 
-    MultiDFAConstructor<Character, String> constructor = new MultiDFAConstructor<>();
+    DFAConstructor<Character, String> constructor = new DFAConstructor<>();
 
     constructor.add(Regex.parse("(abc)*"), "(abc)*").add(Regex.parse("abcabc"), "abcabc")
         .add(Regex.parse("(ab|cd)*"), "(ab|cd)*");
 
     DFA<Character, String> dfa = constructor.buildDFA();
 
-    InputClassifier<Character, String> classifier = new InputClassifier<>(dfa);
+    Lexer<Character, String> classifier = new Lexer<>(dfa);
 
     String text = "abc abcabc ababcdabcdab";
 
