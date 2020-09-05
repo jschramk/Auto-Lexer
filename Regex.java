@@ -77,21 +77,19 @@ public class Regex<I> {
     return subComponents;
   }
 
-
-
   public static <I> Regex<I> parseConversion(String input, Map<Character, I> conversion) {
 
     if (input.length() == 0) {
       throw new IllegalArgumentException("Regular expression cannot be of length 0");
     }
 
-    //System.out.println("PARSING: " + input);
+    //System.out.println("PARSING: \"" + input + "\"");
 
     Regex<I> result;
 
-    String[] stringChoices = input.split("\\|(?![^()]*\\))");
+    List<String> stringChoices = getNextChoices(input);
 
-    if (stringChoices.length > 1) {
+    if (stringChoices.size() > 1) {
 
       List<Regex<I>> choices = new ArrayList<>();
 
@@ -103,22 +101,26 @@ public class Regex<I> {
 
     } else {
 
-      int[] parens = nextParentheses(input);
+      int[] parentheses = nextParentheses(input);
 
-      if (parens != null) {
+      if (parentheses != null) {
 
-        String leftString = input.substring(0, parens[0]);
-        String middleString = input.substring(parens[0] + 1, parens[1] - 1);
+        String leftString = input.substring(0, parentheses[0]);
+        String middleString = input.substring(parentheses[0] + 1, parentheses[1] - 1);
         String rightString;
 
         boolean middleStar = false;
 
-        if (input.length() > parens[1] && input.charAt(parens[1]) == '*') {
-          rightString = input.substring(parens[1] + 1);
+        if (input.length() > parentheses[1] && input.charAt(parentheses[1]) == '*') {
+          rightString = input.substring(parentheses[1] + 1);
           middleStar = true;
         } else {
-          rightString = input.substring(parens[1]);
+          rightString = input.substring(parentheses[1]);
         }
+
+        //System.out.println("\tleft: \"" + leftString + "\"");
+        //System.out.println("\tmiddle: \"" + middleString + "\"");
+        //System.out.println("\tright: \"" + rightString + "\"");
 
         List<Regex<I>> sequence = new ArrayList<>();
 
@@ -150,12 +152,11 @@ public class Regex<I> {
 
     }
 
-    //System.out.println("RESULT FOR " + input + ": " + result);
+    //System.out.println("RESULT FOR \"" + input + "\": " + result);
 
     return result;
 
   }
-
 
   public static Regex<Character> parse(String input) {
 
@@ -198,9 +199,9 @@ public class Regex<I> {
           rightString = input.substring(parentheses[1]);
         }
 
-        System.out.println("\tleft: \"" + leftString + "\"");
-        System.out.println("\tmiddle: \"" + middleString + "\"");
-        System.out.println("\tright: \"" + rightString + "\"");
+        //System.out.println("\tleft: \"" + leftString + "\"");
+        //System.out.println("\tmiddle: \"" + middleString + "\"");
+        //System.out.println("\tright: \"" + rightString + "\"");
 
         List<Regex<Character>> sequence = new ArrayList<>();
 
