@@ -13,6 +13,8 @@ public class Example {
 
     DFA<Character, String> dfa = constructor.buildDFA();
 
+    dfa.print();
+
     Lexer<Character, String> classifier = new Lexer<>(dfa);
 
     String text = "abc abcabc ababcdabcdab";
